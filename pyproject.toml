@@ -9,7 +9,7 @@ readme = "README.md"
 python = "^3.11"
 python-dotenv = "^1.0.1"
 psycopg2-binary = "^2.9.10"
-astrapy = "^1.5.2"
+cassandra-driver = "^3.29.2"
 
 
 [build-system]

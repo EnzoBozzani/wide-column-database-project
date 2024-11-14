@@ -7,16 +7,21 @@ from decimal import Decimal
 # Third Party
 import psycopg2
 from dotenv import load_dotenv
-from astrapy import DataAPIClient
+from cassandra.cluster import Cluster
+from cassandra.auth import PlainTextAuthProvider
 
 # Local
-# from queries import query_chiefs_of_departments, query_graduated_students, query_professor_academic_record, query_student_academic_record, query_tcc_group
+from constants import create_tables
+from queries import query_student_academic_record, query_professor_academic_record
 
 load_dotenv()
 
 postgres_conn = psycopg2.connect(os.environ['POSTGRES_URL'])
-client = DataAPIClient(token=os.environ['ASTRADB_TOKEN'])
-astra_db = client.get_database_by_api_endpoint(os.environ['ASTRADB_URL'])
+astra_session = Cluster(
+    cloud={"secure_connect_bundle": os.environ["ASTRADB_SECURE_BUNDLE_PATH"]},
+    auth_provider=PlainTextAuthProvider(os.environ["ASTRADB_CLIENT_ID"], os.environ["ASTRADB_CLIENT_SECRET"]),
+).connect()
+
 
 def show_tables() -> list[str]:
     print("Buscando nomes das tabelas no banco relacional...")
@@ -26,6 +31,7 @@ def show_tables() -> list[str]:
         postgres_conn.commit()
         return [table[0] for table in res]
 
+
 def select_all(table_name: str) -> list[Any]:
     print(f"Selecionando registros da tabela '{table_name}'...")
     with postgres_conn.cursor() as db:
@@ -33,6 +39,7 @@ def select_all(table_name: str) -> list[Any]:
         res = db.fetchall()
         postgres_conn.commit()
         return res
+
 
 def select_columns(table_name: str) -> list[str]:
     print(f"Selecionando os nomes das colunas da tabela '{table_name}'...")
@@ -42,10 +49,26 @@ def select_columns(table_name: str) -> list[str]:
         postgres_conn.commit()
         return [column[0] for column in res]
 
+
+def insert_into_astra(table_name: str, columns: list[str], rows: list[Any]) -> None:
+    print(f"Inserindo dados na tabela '{table_name}' no Astra DB...")
+    
+    for row in rows:
+        formatted = [str(value) if isinstance(value, Decimal) or isinstance(value, int) else f"'{value}'" for value in row]
+        astra_session.execute(f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({', '.join(formatted)});")
+
+
+def drop_tables_from_astra():
+    tables = astra_session.execute(f"SELECT table_name FROM system_schema.tables WHERE keyspace_name = '{os.environ['ASTRADB_KEYSPACE']}';")
+
+    print("\nDeletando todas as tabelas existentes do AstraDB...")
+
+    for table in tables:
+        astra_session.execute(f"DROP TABLE {table.table_name}")
+        
+
 def transfer_data():
     tables = show_tables()
-
-    keyspace = astra_db.keyspace
 
     print("\n-----------------------------------------------------------------------------\n")
 
@@ -53,37 +76,33 @@ def transfer_data():
         cols = select_columns(table)
         rows = select_all(table)
 
-        astra_db.command()
+        print(f"Criando a tabela {table} no Astra DB")
+        astra_session.execute(create_tables[table])
 
-        # Inserindo os registros no Astra DB
-        for row in rows:
-            record = {}
-            for col, value in zip(cols, row):
-                if isinstance(value, Decimal):
-                    record[col] = float(value)
-                else:
-                    record[col] = value
-            
-            # inserir
+        insert_into_astra(table, cols, rows)
 
-        print(f"Tabela '{table}' criada e dados transferidos para o Astra DB.")
+        print(f"Dados da tabela {table} inseridos no Astra DB.")
+    
+        print("\n-----------------------------------------------------------------------------\n")
 
     print("Transferência concluída!")
 
 if __name__ == '__main__':
-    transfer_data()
+    astra_session.set_keyspace(os.environ["ASTRADB_KEYSPACE"])
 
-    print("Outputs estarão na pasta ./output")
-    print("\n-----------------------------------------------------------------------------\n")
+    # drop_tables_from_astra()
 
-    if not os.path.exists('./output'):
-        os.mkdir('./output')
+    # transfer_data()
 
-    # query_student_academic_record()
-    # query_professor_academic_record()
-    # query_graduated_students()
-    # query_chiefs_of_departments()
-    # query_tcc_group()
+    # print("Outputs estarão na pasta ./output")
+    # print("\n-----------------------------------------------------------------------------\n")
+
+    # if not os.path.exists('./output'):
+    #     os.mkdir('./output')
+
+    query_student_academic_record(astra_session)
+
+    query_professor_academic_record(astra_session)
 
     print("\n-----------------------------------------------------------------------------\n")
     print("Outputs das queries disponíveis na pasta output!")
