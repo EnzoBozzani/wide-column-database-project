@@ -1,4 +1,4 @@
-# graph-database-project
+# wide-column-database-project
 
 _Desenvolvido por:_
 
@@ -9,80 +9,64 @@ _Desenvolvido por:_
 
 _Seções_:
 
--   [Node Labels](#node-labels)
+-   [Tabelas](#tabelas)
 -   [Relacionamentos](#relacionamentos)
 -   [Pré-requisitos](#pré-requisitos)
 -   [Instalação](#instalação)
 -   [Execução](#execução)
 
-### Node Labels
+### Tables
 
--   Student
+## Database Schema
 
-    -   Atributos:
-        -   course_id: String
-        -   name: String
-        -   id: String
-        -   group_id: String | null
-    -   Relacionamentos:
-        -   TAKES
-        -   MENTORED_BY
-        -   GRADUATED
+### Tabelas
 
--   Department
+- **Course**
+  - **PK**: `id TEXT`
+  - `title TEXT`
 
-    -   Atributos:
-        -   dept_name: String
-        -   boss_id: String
-        -   budget: Float
+- **Professor**
+  - **PK**: `id TEXT`
+  - `name TEXT`
+  - `dept_name TEXT`
+  - `salary DECIMAL`
 
--   Professor
+- **TCC Group**
+  - **PK**: `id TEXT`
+  - `professor_id TEXT`
 
-    -   Atributos:
-        -   dept_name: String
-        -   name: String
-        -   id: String
-        -   salary: Float
-    -   Relacionamentos:
-        -   TEACHES
-        -   HEADS
+- **Department**
+  - **PK**: `dept_name TEXT`
+  - `budget DECIMAL`
+  - `boss_id TEXT`
 
--   Subj
+- **Student**
+  - **PK**: `id TEXT`
+  - `name TEXT`
+  - `course_id TEXT`
+  - `group_id TEXT`
 
-    -   Atributos:
-        -   dept_name: String
-        -   title: String
-        -   id: String
-    -   Relacionamentos:
-        -   IS_REQ_OF
+- **Subject (Subj)**
+  - **PK**: `id TEXT`
+  - `title TEXT`
+  - `dept_name TEXT`
 
--   Course
+- **Takes**
+  - **PK**: (`student_id TEXT`, `subj_id TEXT`, `semester INT`, `year INT`)
+  - `grade DECIMAL`
+  - `subjroom TEXT`
 
-    -   Atributos:
-        -   title: String
-        -   id: String
+- **Teaches**
+  - **PK**: (`subj_id TEXT`, `professor_id TEXT`, `semester INT`, `year INT`)
 
-### Relacionamentos
+- **Requirement (Req)**
+  - **PK**: (`course_id TEXT`, `subj_id TEXT`)
 
--   GRADUATED (Student-[:GRADUATED]->Course)
+- **Graduate**
+  - **PK**: (`course_id TEXT`, `student_id TEXT`)
+  - `semester INT`
+  - `year INT`
 
-    -   year: Integer
-    -   semester: Integer
-
--   IS_REQ_OF (Subj-[:IS_REQ_OF]->Course)
-
--   MENTORED_BY (Student-[:METORED_BY]->Professor)
-
--   TAKES (Student-[:TAKES]->Subj)
-
-    -   subjroom: String
-    -   year: Integer
-    -   grade: Float
-    -   semester: Integer
-
--   TEACHES (Professor-[:TEACHES]->Subj)
-    -   year: Integer
-    -   semester: Integer
 
 ### Pré-requisitos
 
@@ -118,13 +102,14 @@ Ative o virtualenv em sua pasta da aplicação.
         poetry install
         ```
 
-Você pode usar Neo4J e PostgreSQL em sua máquina local ou de maneira remota. Apenas configure as variáveis de ambiente com as URLs de conexão, assim como especificado no arquivo .env.example:
+Você pode usar CassandraDB e PostgreSQL em sua máquina local ou de maneira remota. Apenas configure as variáveis de ambiente com as URLs de conexão, assim como especificado no arquivo .env.example (no exemplo, espera-se um banco de dados remoto, hospedado no Datastax Astra DB):
 
 ```
-POSTGRES_URL=""
-NEO4J_URL=""
-NEO4J_USER=""
-NEO4J_PASSWORD=""
+POSTGRES_URL=
+ASTRADB_CLIENT_ID=
+ASTRADB_CLIENT_SECRET=
+ASTRADB_SECURE_BUNDLE_PATH=
+ASTRADB_KEYSPACE=
 ```
 
 Para transferir dados de um banco PostgreSQL, é necessário tem um banco PostgreSQL. Siga o exemplo em [https://github.com/EnzoBozzani/projeto-banco-de-dados](https://github.com/EnzoBozzani/projeto-banco-de-dados), o qual contém migrations, seeder e queries (em SQL).
@@ -139,7 +124,7 @@ Para executar a aplicação:
 python app.py
 ```
 
-Os logs (que informam o andamento) serão exibidos no terminal. Ao fim da execução, será gerada uma pasta 'output' com os resultados das seguintes queries (que serão feitas sobre os dados do Neo4J):
+Os logs (que informam o andamento) serão exibidos no terminal. Ao fim da execução, será gerada uma pasta 'output' com os resultados das seguintes queries (que serão feitas sobre os dados do CassandraDB):
 
 1. histórico escolar de qualquer aluno, retornando o código e nome da disciplina, semestre e ano que a disciplina foi cursada e nota final
 2. histórico de disciplinas ministradas por qualquer professor, com semestre e ano
