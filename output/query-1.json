@@ -1,1 +1,17 @@
-{"student_id": "100000001", "academic_record": [{"subj_id": "CA2211", "semester": 2, "year": 2018, "grade": 5.5, "title": "Geometria Analítica"}, {"subj_id": "CA4312", "semester": 2, "year": 2018, "grade": 7.6, "title": "Álgebra Linear"}, {"subj_id": "CA4322", "semester": 2, "year": 2018, "grade": 5.0, "title": "Cálculo Numérico"}, {"subj_id": "CC7711", "semester": 1, "year": 2018, "grade": 10.0, "title": "Inteligência Artificial e Robótica"}, {"subj_id": "CCD110", "semester": 1, "year": 2018, "grade": 6.0, "title": "Banco de Dados"}, {"subj_id": "CCP130", "semester": 1, "year": 2018, "grade": 8.0, "title": "Desenvolvimento de Algoritmos"}]}
+{
+	"student_id": "100000001",
+	"academic_record": [
+		{ "subj_id": "CA2211", "semester": 2, "year": 2018, "grade": 5.5, "title": "Geometria Analítica" },
+		{ "subj_id": "CA4312", "semester": 2, "year": 2018, "grade": 7.6, "title": "Álgebra Linear" },
+		{ "subj_id": "CA4322", "semester": 2, "year": 2018, "grade": 5.0, "title": "Cálculo Numérico" },
+		{
+			"subj_id": "CC7711",
+			"semester": 1,
+			"year": 2018,
+			"grade": 10.0,
+			"title": "Inteligência Artificial e Robótica"
+		},
+		{ "subj_id": "CCD110", "semester": 1, "year": 2018, "grade": 6.0, "title": "Banco de Dados" },
+		{ "subj_id": "CCP130", "semester": 1, "year": 2018, "grade": 8.0, "title": "Desenvolvimento de Algoritmos" }
+	]
+}

@@ -1,0 +1,15 @@
+{
+	"year": 2018,
+	"semester": 2,
+	"students": [
+		{ "student_id": "100000007", "student_name": "Cristiano Ronaldo", "course_name": "Engenharia de Produção" },
+		{ "student_id": "100000008", "student_name": "Pelé", "course_name": "Engenharia de Produção" },
+		{ "student_id": "100000009", "student_name": "Zico", "course_name": "Engenharia de Produção" },
+		{ "student_id": "100000001", "student_name": "Ronaldo Fenômeno", "course_name": "Ciência da Computação" },
+		{ "student_id": "100000002", "student_name": "Ronaldinho Gaúcho", "course_name": "Ciência da Computação" },
+		{ "student_id": "100000003", "student_name": "Romário", "course_name": "Ciência da Computação" },
+		{ "student_id": "100000004", "student_name": "Neymar", "course_name": "Engenharia Civil" },
+		{ "student_id": "100000005", "student_name": "Vinicius JR", "course_name": "Engenharia Civil" },
+		{ "student_id": "100000006", "student_name": "Lionel Messi", "course_name": "Engenharia Civil" }
+	]
+}

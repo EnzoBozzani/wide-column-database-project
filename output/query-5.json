@@ -1,0 +1,9 @@
+{
+	"prof": "Ana Paula",
+	"id": "CC1111111",
+	"students": [
+		{ "name": "Romário", "id": "100000003" },
+		{ "name": "Ronaldo Fenômeno", "id": "100000001" },
+		{ "name": "Ronaldinho Gaúcho", "id": "100000002" }
+	]
+}

@@ -26,7 +26,7 @@ def query_student_academic_record(session: Session):
 def query_professor_academic_record(session: Session):
     print("Buscando o histórico de disciplinas ministradas pelo professor de ID P005")
     
-    teaches: ResultSet = session.execute("ALLOW FILTERING SELECT * FROM teaches WHERE professor_id = 'P005';")
+    teaches: ResultSet = session.execute("SELECT * FROM teaches WHERE professor_id = 'P005' ALLOW FILTERING;")
 
     records = []
 
@@ -43,44 +43,60 @@ def query_professor_academic_record(session: Session):
         json.dump({ "professor_id": "P005", "professor_name": prof[0].name, "academic_record": records }, f, ensure_ascii=False)
 
 
-# def query_graduated_students(session):
-#     print("Buscando os alunos que se formaram no segundo semestre de 2018")
-#     query = """
-#     MATCH (s:Student)-[:GRADUATED {semester: 2, year: 2018}]->(c:Course)
-#     RETURN s.id AS student_id, s.name AS name
-#     """
+def query_graduated_students(session):
+    print("Buscando os alunos que se formaram no segundo semestre de 2018")
 
-#     with neo4j_driver.session() as session:
-#         result = session.run(query)
-#         records = [record.data() for record in result]
+    graduates: ResultSet = session.execute("SELECT * FROM graduate WHERE semester = 2 AND year = 2018 ALLOW FILTERING")
 
-#     with open('./output/query-3.json', 'w') as f:
-#         json.dump(records, f, ensure_ascii=False)
+    records = []
 
-# def query_chiefs_of_departments(session):
-#     print("Buscando os professores que são chefes de departamento")
-#     query = """
-#     MATCH (p:Professor)-[:HEADS]->(d:Department)
-#     RETURN p.id AS professor_id, p.name AS professor_name, d.dept_name AS department_name, d.budget AS department_budget
-#     """
+    for g in graduates:
+        student: ResultSet = session.execute(f"SELECT * FROM student WHERE id = '{g.student_id}';")
+        course: ResultSet = session.execute(f"SELECT * FROM course WHERE id = '{g.course_id}';")
 
-#     with neo4j_driver.session() as session:
-#         result = session.run(query)
-#         records = [record.data() for record in result]
+        records.append({ 
+            "student_id": g.student_id,
+            "student_name": student[0].name,
+            "course_name": course[0].title
+        })
 
-#     with open('./output/query-4.json', 'w') as f:
-#         json.dump(records, f, ensure_ascii=False)
+    with open('./output/query-3.json', 'w') as f:
+        json.dump({ "year": 2018, "semester": 2, "students": records }, f, ensure_ascii=False)
 
-# def query_tcc_group(session):
-#     print("Buscando os alunos que formaram o grupo de TCC de ID CC1111111")
-#     query = """
-#     MATCH (s:Student {group_id: 'CC1111111'})-[:MENTORED_BY]->(p:Professor)
-#     RETURN s.id AS student_id, s.name AS student_name, p.name AS professor_name
-#     """
 
-#     with neo4j_driver.session() as session:
-#         result = session.run(query)
-#         records = [record.data() for record in result]
+def query_chiefs_of_departments(session):
+    print("Buscando os professores que são chefes de departamento")
+    
+    department: ResultSet = session.execute("SELECT * FROM department;")
 
-#     with open('./output/query-5.json', 'w') as f:
-#         json.dump(records, f, ensure_ascii=False)
+    records = []
+
+    for d in department:
+        boss: ResultSet = session.execute(f"SELECT * FROM professor WHERE id = '{d.boss_id}';")
+
+        records.append({
+            "name": boss[0].name,
+            "department": d.dept_name
+        })
+
+    with open('./output/query-4.json', 'w') as f:
+        json.dump(records, f, ensure_ascii=False)
+
+
+def query_tcc_group(session):
+    print("Buscando os alunos que formaram o grupo de TCC de ID CC1111111")
+    
+    tcc_group = session.execute("SELECT * FROM tcc_group WHERE id = 'CC1111111';")
+    students = session.execute("SELECT * FROM student WHERE group_id = 'CC1111111' ALLOW FILTERING;")
+    prof = session.execute(f"SELECT * FROM professor WHERE id = '{tcc_group[0].professor_id}'")
+
+    records = []
+
+    for s in students:
+        records.append({
+            "name": s.name,
+            "id": s.id
+        })
+
+    with open('./output/query-5.json', 'w') as f:
+        json.dump({ "prof": prof[0].name, "id": "CC1111111", "students": records }, f, ensure_ascii=False)

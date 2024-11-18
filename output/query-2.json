@@ -1,0 +1,5 @@
+{
+	"professor_id": "P005",
+	"professor_name": "Juliana Silva",
+	"academic_record": [{ "subj_id": "CCD110", "semester": 1, "year": 2019 }]
+}

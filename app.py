@@ -12,7 +12,7 @@ from cassandra.auth import PlainTextAuthProvider
 
 # Local
 from constants import create_tables
-from queries import query_student_academic_record, query_professor_academic_record
+from queries import query_student_academic_record, query_professor_academic_record, query_graduated_students, query_chiefs_of_departments, query_tcc_group
 
 load_dotenv()
 
@@ -90,20 +90,23 @@ def transfer_data():
 if __name__ == '__main__':
     astra_session.set_keyspace(os.environ["ASTRADB_KEYSPACE"])
 
-    # drop_tables_from_astra()
+    drop_tables_from_astra()
 
-    # transfer_data()
+    transfer_data()
 
-    # print("Outputs estarão na pasta ./output")
-    # print("\n-----------------------------------------------------------------------------\n")
-
-    # if not os.path.exists('./output'):
-    #     os.mkdir('./output')
+    if not os.path.exists('./output'):
+        os.mkdir('./output')
 
     query_student_academic_record(astra_session)
 
     query_professor_academic_record(astra_session)
 
+    query_graduated_students(astra_session)
+    
+    query_chiefs_of_departments(astra_session)
+
+    query_tcc_group(astra_session)
+
     print("\n-----------------------------------------------------------------------------\n")
-    print("Outputs das queries disponíveis na pasta output!")
+    print("Outputs das queries disponíveis na pasta ./output!")
     print("\n-----------------------------------------------------------------------------\n")
